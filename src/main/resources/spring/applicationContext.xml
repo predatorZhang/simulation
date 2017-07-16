@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:component-scan base-package="com.casic">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+
+	<!-- 默认通过application.properties读取配置 -->
+    <bean id="applicationProperties" class="com.casic.simulation.core.spring.ApplicationPropertiesFactoryBean"/>
+
+    <!-- 定义受环境影响易变的变量 -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="properties" ref="applicationProperties"/>
+    </bean>
+
+	<!-- 国际化 -->
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames" value="${application.i18n.packages}"/>
+	</bean>
+
+	<bean id="messageHelper" class="com.casic.simulation.core.spring.MessageHelper"/>
+
+	<bean class="com.casic.simulation.core.logback.JulHandler"/>
+
+	<bean id="applicationContextHelper" class="com.casic.simulation.core.spring.ApplicationContextHelper"/>
+
+	<bean id="exportor" class="com.casic.simulation.core.ext.export.CsvExportor"/>
+
+    <bean id="flowConnector" class="com.casic.simulation.flow.web.FlowConnector"/>
+
+    <bean id="permissionDecorator" class="com.casic.simulation.permission.PermissionDecorator" />
+
+    <bean id="permissionChecker" class="com.casic.simulation.permission.PermissionChecker" />
+
+    <!-- 文件存储基础类 -->
+    <bean id="storeConnector" class="com.casic.simulation.core.ext.store.FileStoreConnector">
+        <property name="baseDir" value="${store.baseDir}"/>
+    </bean>
+
+    <!--start 人员登录权限相关 appId号改为各个分系统的id号-->
+
+    <bean id="httpUrlSourceFetcher" class="com.casic.simulation.permission.HttpUrlSourceFetcher"	scope="prototype">
+        <property name="relativePath" value="http://192.168.0.203:8080/ctrl/rs/authority/user" />
+        <property name="appId" value="2" />
+        <property name="debug" value="true" />
+    </bean>
+    <!--end 人员登录权限相关-->
+
+    <bean id="waterPipeLineAnalysisManager" class="com.casic.simulation.dma.analysis.manager.MockWaterPipeLineAnalysisManager" scope="prototype"/>
+
+</beans>

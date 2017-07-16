@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="compositeFilter" class="com.casic.simulation.core.servlet.CompositeFilter">
+        <property name="filters">
+            <list>
+                <ref bean="casSignOutFilter"/>
+                <ref bean="casFilter"/>
+                <ref bean="casValidationFilter"/>
+                <ref bean="casWrapperFilter"/>
+                <ref bean="casAssertFlter"/>
+                <ref bean="authFilter"/>
+                <ref bean="characterEncodingFilter"/>
+                <ref bean="acceptLanguageHeaderFilter"/>
+                <ref bean="openSessionInViewFilter"/>
+                <ref bean="restFilter"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="characterEncodingFilter" class="com.casic.simulation.core.servlet.ProxyFilter">
+        <property name="name" value="encode"/>
+        <property name="filter">
+            <bean class="org.springframework.web.filter.CharacterEncodingFilter">
+                <property name="encoding" value="UTF-8"/>
+                <property name="forceEncoding" value="true"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="acceptLanguageHeaderFilter" class="com.casic.simulation.core.servlet.ProxyFilter">
+        <property name="name" value="i18n"/>
+        <property name="filter">
+            <bean class="com.casic.simulation.core.i18n.AcceptLanguageHeaderFilter"/>
+        </property>
+    </bean>
+
+    <bean id="openSessionInViewFilter" class="com.casic.simulation.core.servlet.ProxyFilter">
+        <property name="name" value="hibernate"/>
+        <property name="filter">
+            <bean class="org.springframework.orm.hibernate4.support.OpenSessionInViewFilter"/>
+        </property>
+        <property name="excludePatterns" value="/common/util/*"/>
+    </bean>
+
+    <bean id="restFilter" class="com.casic.simulation.core.servlet.ProxyFilter">
+        <property name="name" value="rest"/>
+        <property name="filter">
+            <bean class="com.casic.simulation.core.ext.rest.RestFilter"/>
+        </property>
+        <property name="urlPattern" value="/rs/*"/>
+    </bean>
+
+    <bean id="authFilter" class="com.casic.simulation.core.servlet.ProxyFilter">
+        <property name="name" value="auth"/>
+        <property name="filter">
+            <bean class="com.casic.simulation.core.auth.AuthFilter">
+                <property name="rsURL" value="${rs.baseurl}"/>
+                <property name="logoutURL" value="${logout.url}"/>
+                <property name="casURL" value="${cas.server}"/>
+            </bean>
+        </property>
+        <property name="excludePatterns">
+            <list>
+                <value>/css/*</value>
+                <value>/images/*</value>
+                <value>/script/*</value>
+                <value>/rs/*</value>
+                <value>/app/*</value>
+                <value>/login.jsp</value>
+                <value>/event/getAlarmEventList.do</value>
+                <value>/event/getAlarmRecordList.do</value>
+                <value>/event/getPadEventList.do</value>
+                <value>/WaterPipelineAnalysis/getCurrentLeakage.do</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="casSignOutFilter" class="com.casic.simulation.core.servlet.ProxyFilter">
+        <property name="name" value="cas"/>
+        <property name="filter">
+            <bean class="org.jasig.cas.client.session.SingleSignOutFilter">
+            </bean>
+        </property>
+        <property name="excludePatterns">
+            <list>
+                <value>/rs/*</value>
+                <value>/app/*</value>
+                <value>/images/*</value>
+                <value>/event/getAlarmEventList.do</value>
+                <value>/event/getAlarmRecordList.do</value>
+                <value>/event/getPadEventList.do</value>
+                <value>/WaterPipelineAnalysis/getCurrentLeakage.do</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="casFilter" class="com.casic.simulation.core.servlet.ProxyFilter">
+        <property name="name" value="cas"/>
+        <property name="filter">
+            <bean class="org.jasig.cas.client.authentication.AuthenticationFilter">
+            </bean>
+        </property>
+        <property name="map">
+            <map>
+                <entry key="casServerLoginUrl" value="${cas.server}/login"/>
+                <entry key="serverName" value="${cas.client}"/>
+            </map>
+        </property>
+        <property name="excludePatterns">
+            <list>
+                <value>/rs/*</value>
+                <value>/app/*</value>
+                <value>/images/*</value>
+                <value>/event/getAlarmEventList.do</value>
+                <value>/event/getAlarmRecordList.do</value>
+                <value>/event/getPadEventList.do</value>
+                <value>/WaterPipelineAnalysis/getCurrentLeakage.do</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="casValidationFilter" class="com.casic.simulation.core.servlet.ProxyFilter">
+        <property name="name" value="cas"/>
+        <property name="filter">
+            <bean class="org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter">
+            </bean>
+        </property>
+        <property name="map">
+            <map>
+                <!--http://192.168.0.203:8080/cas-->
+                <!--http://localhost:8080-->
+                <entry key="casServerUrlPrefix" value="${cas.server}"/>
+                <entry key="serverName" value="${cas.client}"/>
+            </map>
+        </property>
+        <property name="excludePatterns">
+            <list>
+                <value>/rs/*</value>
+                <value>/app/*</value>
+                <value>/images/*</value>
+                <value>/event/getAlarmEventList.do</value>
+                <value>/event/getAlarmRecordList.do</value>
+                <value>/event/getPadEventList.do</value>
+                <value>/WaterPipelineAnalysis/getCurrentLeakage.do</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="casWrapperFilter" class="com.casic.simulation.core.servlet.ProxyFilter">
+        <property name="name" value="cas"/>
+        <property name="filter">
+            <bean class="org.jasig.cas.client.util.HttpServletRequestWrapperFilter">
+            </bean>
+        </property>
+        <property name="excludePatterns">
+            <list>
+                <value>/rs/*</value>
+                <value>/app/*</value>
+                <value>/images/*</value>
+                <value>/event/getAlarmEventList.do</value>
+                <value>/event/getAlarmRecordList.do</value>
+                <value>/event/getPadEventList.do</value>
+                <value>/WaterPipelineAnalysis/getCurrentLeakage.do</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="casAssertFlter" class="com.casic.simulation.core.servlet.ProxyFilter">
+        <property name="name" value="cas"/>
+        <property name="filter">
+            <bean class="org.jasig.cas.client.util.AssertionThreadLocalFilter">
+            </bean>
+        </property>
+        <property name="excludePatterns">
+            <list>
+                <value>/rs/*</value>
+                <value>/app/*</value>
+                <value>/images/*</value>
+                <value>/event/getAlarmEventList.do</value>
+                <value>/event/getAlarmRecordList.do</value>
+                <value>/event/getPadEventList.do</value>
+                <value>/WaterPipelineAnalysis/getCurrentLeakage.do</value>
+            </list>
+        </property>
+    </bean>
+
+</beans>

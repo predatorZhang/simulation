@@ -1,0 +1,26 @@
+.back-img {
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    top: 0px;
+}
+.head-img {
+    background-image:url(../images/banner_C_img.png);
+    background-repeat: repeat-x;
+    width:100%;
+    position:absolute;
+}
+.left-img {
+    float:left
+}
+.right-img {
+    float:right;
+}
+body {
+    font: 100%/1.4 Verdana, Arial, Helvetica, sans-serif;
+    font-size:12px;
+    margin:0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}

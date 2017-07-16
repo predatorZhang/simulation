@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="noiseDeviceRequest" class="com.casic.simulation.breakage.bean.NoiseDeviceRequest" scope="prototype">
+        <property name="baseURL" value="${rs.baseurl}" />
+        <property name="deviceListURL" value="/noise/getDeviceTable.do" />
+        <property name="alarmRecordURL" value="/noise/alarmPageQuery.do" />
+    </bean>
+
+    <bean id="alarmRecordRequest" class="com.casic.simulation.event.bean.AlarmRecordRequest" scope="prototype">
+        <property name="baseURL" value="${rs.baseurl}" />
+        <property name="messageStatusListURL"
+                  value="/alarm/getMessageStatusList.do" />
+    </bean>
+
+    <bean id="pressDeviceRequest" class="com.casic.simulation.leakage.bean.PressDeviceRequest" scope="prototype">
+        <property name="baseURL" value="${rs.baseurl}" />
+        <property name="deviceListURL" value="/press/getDeviceTable.do" />
+        <property name="alarmRecordURL" value="/press/alarmPageQuery.do" />
+    </bean>
+
+    <bean id="flowDeviceRequest" class="com.casic.simulation.leakage.bean.FlowDeviceRequest" scope="prototype">
+        <property name="baseURL" value="${rs.baseurl}" />
+        <property name="deviceListURL" value="/flow/getDeviceTable.do" />
+    </bean>
+
+    <bean id="liquidDeviceRequest" class="com.casic.simulation.overflow.bean.LiquidDeviceRequest" scope="prototype">
+        <property name="baseURL" value="${rs.baseurl}" />
+        <property name="deviceListURL" value="/liquid/getDeviceTable.do" />
+        <property name="alarmRecordURL" value="/liquid/alarmPageQuery.do" />
+    </bean>
+
+</beans>

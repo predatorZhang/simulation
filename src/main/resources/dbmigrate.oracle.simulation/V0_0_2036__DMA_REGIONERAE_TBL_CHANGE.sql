@@ -1,0 +1,1 @@
+alter table DMA_REGIONERAE MODIFY(REGIONERAE varchar(2000));

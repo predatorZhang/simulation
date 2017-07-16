@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <context:component-scan base-package="com.casic">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!-- 默认通过application.properties读取配置 -->
+    <bean id="applicationProperties" class="com.casic.simulation.core.spring.ApplicationPropertiesFactoryBean"/>
+
+    <!-- 定义受环境影响易变的变量 -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="properties" ref="applicationProperties"/>
+    </bean>
+
+    <bean id="dataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@192.168.0.203:1521:NBDB" />
+        <property name="username" value="ningbo" />
+        <property name="password" value="ningbo" />
+    </bean>
+
+    <bean id="dbUnitDatabaseConfig" class="com.github.springtestdbunit.bean.DatabaseConfigBean">
+        <property name="skipOracleRecyclebinTables" value="true" />
+    </bean>
+    <bean id="dbUnitDatabaseConnection"
+          class="com.github.springtestdbunit.bean.DatabaseDataSourceConnectionFactoryBean">
+        <property name="databaseConfig" ref="dbUnitDatabaseConfig" />
+        <property name="dataSource" ref="dataSource" />
+        <!-- oracle必须配置schema，不配置会抛AmbiguousTableNameException，mysql不要配置schema，否则执行@ExpectedDatabase的逻辑时会抛错 -->
+        <property name="schema" value="scott" />
+    </bean>
+
+
+    <bean id="sessionFactory" class="com.casic.simulation.core.hibernate.RecoverableSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan" value="com.casic"/>
+        <property name="hibernateProperties" ref="applicationProperties"/>
+    </bean>
+
+    <bean id="transactionManager" class="com.casic.simulation.core.hibernate.ReadOnlyTransactionManager">
+        <property name="platformTransactionManager">
+            <bean class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+                <property name="sessionFactory" ref="sessionFactory" />
+            </bean>
+        </property>
+    </bean>
+
+    <tx:annotation-driven proxy-target-class="true"/>
+
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate" depends-on="databaseMigrator">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="databaseMigrator" class="com.casic.simulation.core.dbmigrate.DatabaseMigrator">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="applicationProperties" ref="applicationProperties"/>
+    </bean>
+
+    <bean id="messageHelper" class="com.casic.simulation.core.spring.MessageHelper"/>
+
+    <bean class="com.casic.simulation.core.logback.JulHandler"/>
+
+    <bean id="applicationContextHelper" class="com.casic.simulation.core.spring.ApplicationContextHelper"/>
+
+    <bean id="exportor" class="com.casic.simulation.core.ext.export.CsvExportor"/>
+
+    <bean id="flowConnector" class="com.casic.simulation.flow.web.FlowConnector"/>
+
+    <bean id="permissionDecorator" class="com.casic.simulation.permission.PermissionDecorator" />
+
+    <bean id="permissionChecker" class="com.casic.simulation.permission.PermissionChecker" />
+
+    <!-- 文件存储基础类 -->
+    <bean id="storeConnector" class="com.casic.simulation.core.ext.store.FileStoreConnector">
+        <property name="baseDir" value="${store.baseDir}"/>
+    </bean>
+
+    <!--start 人员登录权限相关 appId号改为各个分系统的id号-->
+
+    <bean id="httpUrlSourceFetcher" class="com.casic.simulation.permission.HttpUrlSourceFetcher"	scope="prototype">
+        <property name="relativePath" value="http://192.168.0.203:8080/ctrl/rs/authority/user" />
+        <property name="appId" value="2" />
+        <property name="debug" value="true" />
+    </bean>
+    <!--end 人员登录权限相关-->
+
+    <bean id="waterPipeLineAnalysisManager" class="com.casic.simulation.dma.analysis.manager.MockWaterPipeLineAnalysisManager" scope="prototype"/>
+
+
+</beans>
